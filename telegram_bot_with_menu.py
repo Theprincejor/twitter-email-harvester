@@ -49,6 +49,13 @@ class MenuTelegramBot:
         ]
         return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
+    def get_cancel_keyboard(self):
+        """Create keyboard with cancel button"""
+        keyboard = [
+            [KeyboardButton("❌ Cancel")]
+        ]
+        return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
     def is_admin(self, user_id: int) -> bool:
         """Check if user is admin"""
         return user_id in self.admin_chat_ids
@@ -133,8 +140,10 @@ Welcome! Use the menu buttons below or type commands:
         await update.message.reply_text(
             "🐦 **Start New Campaign**\n\n"
             "Please enter the Twitter username to scrape followers from:\n"
-            "Example: `azuki` or `@azuki`",
-            parse_mode='Markdown'
+            "Example: `azuki` or `@azuki`\n\n"
+            "Or click ❌ Cancel to go back.",
+            parse_mode='Markdown',
+            reply_markup=self.get_cancel_keyboard()
         )
         return WAITING_USERNAME
 
@@ -143,17 +152,30 @@ Welcome! Use the menu buttons below or type commands:
         user_id = update.effective_user.id
         username = update.message.text.strip().lstrip('@')
 
-        # Filter out menu button text
+        # Filter out menu button text - cancel if menu button clicked
         menu_buttons = ["🚀 Start Campaign", "📊 Status", "⏸️ Stop Campaign",
                        "▶️ Continue Campaign", "📧 Add Emails", "👁️ View Emails",
                        "⚙️ Settings", "❓ Help"]
 
         if username in menu_buttons:
+            # Cancel this conversation - user wants to do something else
+            if user_id in self.user_sessions:
+                del self.user_sessions[user_id]
             await update.message.reply_text(
-                "❌ Invalid username. Please enter a valid Twitter username:",
+                "❌ Campaign start cancelled. Please select what you want to do:",
                 reply_markup=self.get_main_menu_keyboard()
             )
-            return WAITING_USERNAME
+            return ConversationHandler.END
+
+        # Also filter out cancel button and common cancel words
+        if username in ["❌ Cancel"] or username.lower() in ["cancel", "stop", "exit", "quit", "back"]:
+            if user_id in self.user_sessions:
+                del self.user_sessions[user_id]
+            await update.message.reply_text(
+                "❌ Operation cancelled.",
+                reply_markup=self.get_main_menu_keyboard()
+            )
+            return ConversationHandler.END
 
         self.user_sessions[user_id]['twitter_username'] = username
 
