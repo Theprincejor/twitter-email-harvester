@@ -200,43 +200,54 @@ class CampaignManager:
 
             writer.writerow(log_row)
 
+    def _load_test_emails(self, campaign_id: str) -> List[Dict]:
+        """Load test emails (used for both warmup and checkpoint)"""
+        test_file = os.path.join(self.config['settings']['data_dir'], f"campaign_{campaign_id}_test_emails.csv")
+
+        # Fallback to old warmup file for backwards compatibility
+        if not os.path.exists(test_file):
+            template_dir = "templates"
+            old_warmup = os.path.join(template_dir, f"{campaign_id}_warmup.csv")
+            if os.path.exists(old_warmup):
+                test_file = old_warmup
+
+        if not os.path.exists(test_file):
+            return []
+
+        with open(test_file, newline='', encoding='utf-8') as f:
+            return list(csv.DictReader(f))
+
     def _send_warmup_emails(self, campaign_id: str, campaign_config: Dict,
                            state: CampaignState, stop_flag: threading.Event) -> bool:
-        """Send warmup emails before main campaign"""
-        warmup_file = campaign_config.get('warmup_emails')
-        if not warmup_file or not os.path.exists(warmup_file):
-            print(f"⚠️ Warmup file not found: {warmup_file}")
+        """Send warmup emails - first 10 from test email list"""
+        test_emails = self._load_test_emails(campaign_id)
+
+        if not test_emails:
+            print(f"⚠️ No test emails found for campaign {campaign_id}")
             return True
 
         settings = state.state["settings"]
-        warmup_count = settings.get("warmup_count", 10)
+        warmup_count = min(settings.get("warmup_count", 10), len(test_emails))
         warmup_interval = settings.get("warmup_interval_minutes", 10) * 60
 
         print(f"🔥 Starting warmup: {warmup_count} emails, {warmup_interval // 60} min intervals")
-
-        with open(warmup_file, newline='', encoding='utf-8') as f:
-            warmup_emails = list(csv.DictReader(f))
-
-        if not warmup_emails:
-            return True
 
         html_template = self._load_html_template(campaign_config['template'])
         if not html_template:
             return False
 
-        picks = random.sample(range(len(warmup_emails)), min(warmup_count, len(warmup_emails)))
-
-        for idx, pick in enumerate(picks, start=1):
+        # Send first N emails from test list
+        for idx in range(warmup_count):
             if stop_flag.is_set():
                 print("⏸️ Warmup stopped by user")
                 return False
 
-            row = warmup_emails[pick]
+            row = test_emails[idx]
             email = row.get('email', '').strip()
             name = row.get('name', '')
 
             if email:
-                print(f"🔁 Warmup {idx}/{len(picks)} → {email}")
+                print(f"🔁 Warmup {idx + 1}/{warmup_count} → {email}")
                 success = self._send_email(
                     email, name, html_template,
                     campaign_config['subject'],
@@ -248,41 +259,42 @@ class CampaignManager:
                 else:
                     self._log_email(campaign_id, row, "failed", "Warmup failed")
 
-                if idx < len(picks):
+                if idx < warmup_count - 1:
                     time.sleep(warmup_interval)
 
-        state.update(warmup_completed=True)
+        state.update(warmup_completed=True, checkpoint_index=0)
         print("✅ Warmup completed")
         return True
 
-    def _send_checkpoint_email(self, campaign_id: str, campaign_config: Dict):
-        """Send checkpoint email to monitor deliverability"""
-        checkpoint_file = campaign_config.get('checkpoint_emails')
-        if not checkpoint_file or not os.path.exists(checkpoint_file):
-            return
+    def _send_checkpoint_email(self, campaign_id: str, campaign_config: Dict, state: CampaignState):
+        """Send checkpoint email - rotates through all test emails"""
+        test_emails = self._load_test_emails(campaign_id)
 
-        with open(checkpoint_file, newline='', encoding='utf-8') as f:
-            checkpoint_emails = list(csv.DictReader(f))
-
-        if not checkpoint_emails:
+        if not test_emails:
             return
 
         html_template = self._load_html_template(campaign_config['template'])
         if not html_template:
             return
 
-        # Pick random checkpoint email
-        row = random.choice(checkpoint_emails)
+        # Get current checkpoint index (rotates through all test emails)
+        checkpoint_index = state.state.get("checkpoint_index", 0)
+
+        # Pick email from rotation
+        row = test_emails[checkpoint_index % len(test_emails)]
         email = row.get('email', '').strip()
         name = row.get('name', '')
 
         if email:
-            print(f"✓ Sending checkpoint email to {email}")
+            print(f"✓ Checkpoint {checkpoint_index + 1} → {email} (rotation)")
             self._send_email(
                 email, name, html_template,
                 campaign_config['subject'],
                 campaign_config['smtp']
             )
+
+        # Increment checkpoint index for next rotation
+        state.update(checkpoint_index=checkpoint_index + 1)
 
     def _run_campaign(self, campaign_id: str, twitter_username: str,
                      state: CampaignState, stop_flag: threading.Event):
@@ -359,7 +371,7 @@ class CampaignManager:
 
                 # Send checkpoint email if enabled
                 if settings["use_warmup_checkpoint"] and (i + 1) % checkpoint_interval == 0:
-                    self._send_checkpoint_email(campaign_id, campaign_config)
+                    self._send_checkpoint_email(campaign_id, campaign_config, state)
 
                 # Delay between emails
                 delay = self.config['settings']['delay_per_email']

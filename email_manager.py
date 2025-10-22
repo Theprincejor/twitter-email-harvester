@@ -52,9 +52,12 @@ class EmailListManager:
 
         return emails
 
-    def add_warmup_emails(self, campaign_id: str, email_text: str) -> Dict:
-        """Add warmup emails to campaign"""
-        filepath = os.path.join(self.templates_dir, f"{campaign_id}_warmup.csv")
+    def add_test_emails(self, campaign_id: str, email_text: str) -> Dict:
+        """Add test emails to campaign (used for both warmup and checkpoint rotation)"""
+        # Store in data directory for better organization
+        data_dir = "data"
+        os.makedirs(data_dir, exist_ok=True)
+        filepath = os.path.join(data_dir, f"campaign_{campaign_id}_test_emails.csv")
 
         # Parse emails
         new_emails = self.parse_email_input(email_text)
@@ -94,9 +97,13 @@ class EmailListManager:
 
         return {
             "success": True,
-            "message": f"Added {added_count} warmup emails (skipped {len(new_emails) - added_count} duplicates)",
+            "message": f"Added {added_count} test emails (skipped {len(new_emails) - added_count} duplicates)",
             "total": len(existing_emails)
         }
+
+    def add_warmup_emails(self, campaign_id: str, email_text: str) -> Dict:
+        """Alias for add_test_emails (backwards compatibility)"""
+        return self.add_test_emails(campaign_id, email_text)
 
     def add_checkpoint_emails(self, campaign_id: str, email_text: str) -> Dict:
         """Add checkpoint emails to campaign"""
@@ -144,9 +151,15 @@ class EmailListManager:
             "total": len(existing_emails)
         }
 
-    def list_warmup_emails(self, campaign_id: str) -> List[Dict]:
-        """List all warmup emails for a campaign"""
-        filepath = os.path.join(self.templates_dir, f"{campaign_id}_warmup.csv")
+    def list_test_emails(self, campaign_id: str) -> List[Dict]:
+        """List all test emails for a campaign"""
+        # Try new location first
+        data_dir = "data"
+        filepath = os.path.join(data_dir, f"campaign_{campaign_id}_test_emails.csv")
+
+        # Fallback to old warmup location
+        if not os.path.exists(filepath):
+            filepath = os.path.join(self.templates_dir, f"{campaign_id}_warmup.csv")
 
         if not os.path.exists(filepath):
             return []
@@ -154,6 +167,10 @@ class EmailListManager:
         with open(filepath, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             return list(reader)
+
+    def list_warmup_emails(self, campaign_id: str) -> List[Dict]:
+        """Alias for list_test_emails (backwards compatibility)"""
+        return self.list_test_emails(campaign_id)
 
     def list_checkpoint_emails(self, campaign_id: str) -> List[Dict]:
         """List all checkpoint emails for a campaign"""
