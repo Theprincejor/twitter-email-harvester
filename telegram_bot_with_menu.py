@@ -143,6 +143,18 @@ Welcome! Use the menu buttons below or type commands:
         user_id = update.effective_user.id
         username = update.message.text.strip().lstrip('@')
 
+        # Filter out menu button text
+        menu_buttons = ["🚀 Start Campaign", "📊 Status", "⏸️ Stop Campaign",
+                       "▶️ Continue Campaign", "📧 Add Emails", "👁️ View Emails",
+                       "⚙️ Settings", "❓ Help"]
+
+        if username in menu_buttons:
+            await update.message.reply_text(
+                "❌ Invalid username. Please enter a valid Twitter username:",
+                reply_markup=self.get_main_menu_keyboard()
+            )
+            return WAITING_USERNAME
+
         self.user_sessions[user_id]['twitter_username'] = username
 
         # Show campaign selection with inline buttons
@@ -313,16 +325,23 @@ Welcome! Use the menu buttons below or type commands:
         keyboard = []
         for campaign_id in campaigns:
             campaign_config = self.campaign_manager.get_campaign_config(campaign_id)
+
+            # Get current email counts
+            warmup_count = len(self.email_manager.list_warmup_emails(campaign_id))
+            checkpoint_count = len(self.email_manager.list_checkpoint_emails(campaign_id))
+
             keyboard.append([
                 InlineKeyboardButton(
-                    f"📧 {campaign_config['name']}",
+                    f"📧 {campaign_config['name']} (W:{warmup_count} C:{checkpoint_count})",
                     callback_data=f"addemail_{campaign_id}"
                 )
             ])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
-            "📧 **Add Emails**\n\nSelect campaign:",
+            "📧 **Add Emails**\n\n"
+            "Select campaign:\n"
+            "(W=Warmup emails, C=Checkpoint emails)",
             reply_markup=reply_markup,
             parse_mode='Markdown'
         )
@@ -418,16 +437,23 @@ Welcome! Use the menu buttons below or type commands:
         keyboard = []
         for campaign_id in campaigns:
             campaign_config = self.campaign_manager.get_campaign_config(campaign_id)
+
+            # Get current email counts
+            warmup_count = len(self.email_manager.list_warmup_emails(campaign_id))
+            checkpoint_count = len(self.email_manager.list_checkpoint_emails(campaign_id))
+
             keyboard.append([
                 InlineKeyboardButton(
-                    f"📧 {campaign_config['name']}",
+                    f"📧 {campaign_config['name']} (W:{warmup_count} C:{checkpoint_count})",
                     callback_data=f"viewemail_{campaign_id}"
                 )
             ])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text(
-            "👁️ **View Emails**\n\nSelect campaign:",
+            "👁️ **View Emails**\n\n"
+            "Select campaign:\n"
+            "(W=Warmup emails, C=Checkpoint emails)",
             reply_markup=reply_markup,
             parse_mode='Markdown'
         )
