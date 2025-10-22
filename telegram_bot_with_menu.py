@@ -21,7 +21,8 @@ from email_manager import EmailListManager
 (WAITING_USERNAME, WAITING_CAMPAIGN, WAITING_SETTINGS_CONFIRM,
  WAITING_MAIL_PER_DAY, WAITING_STOP_CONFIRM, WAITING_CONTINUE_CONFIRM,
  WAITING_EMAIL_CAMPAIGN, WAITING_EMAIL_TYPE, WAITING_EMAIL_INPUT,
- WAITING_VIEW_CAMPAIGN, WAITING_VIEW_TYPE) = range(11)
+ WAITING_VIEW_CAMPAIGN, WAITING_VIEW_TYPE, WAITING_SETTINGS_CAMPAIGN,
+ WAITING_SETTINGS_CHOICE, WAITING_SETTINGS_VALUE) = range(14)
 
 
 class MenuTelegramBot:
@@ -696,13 +697,21 @@ Welcome! Use the menu buttons below or type commands:
         for campaign_id in campaigns:
             status = self.campaign_manager.get_campaign_status(campaign_id)
             settings = status['settings']
+            test_emails = len(self.email_manager.list_test_emails(campaign_id))
 
-            settings_text += f"📧 **{campaign_id}**\n"
-            settings_text += f"├─ Warmup: {'✅ Enabled' if settings['use_warmup_checkpoint'] else '❌ Disabled'}\n"
-            settings_text += f"├─ Daily Limit: {settings['mails_per_day']} emails\n"
+            settings_text += f"📧 **{campaign_id.upper()}**\n"
+            settings_text += f"├─ Warmup/Checkpoint: {'✅ Enabled' if settings['use_warmup_checkpoint'] else '❌ Disabled'}\n"
+            settings_text += f"├─ Daily Limit: {settings['mails_per_day']} emails/day\n"
             settings_text += f"├─ Checkpoint: Every {settings['checkpoint_interval']} emails\n"
-            settings_text += f"└─ Warmup Count: {settings['warmup_count']} emails\n"
+            settings_text += f"├─ Warmup Count: {settings['warmup_count']} emails\n"
+            settings_text += f"├─ Warmup Interval: {settings.get('warmup_interval_minutes', 10)} minutes\n"
+            settings_text += f"└─ Test Emails: {test_emails} emails\n"
             settings_text += "\n"
+
+        settings_text += "💡 **To change settings:**\n"
+        settings_text += "• Start a new campaign with your preferred settings\n"
+        settings_text += "• Settings are configured during campaign start\n"
+        settings_text += "• Each campaign run can have different settings"
 
         await update.message.reply_text(
             settings_text,
