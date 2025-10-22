@@ -55,18 +55,20 @@ class ExtendedTelegramBot:
 🤖 **Email Campaign Bot**
 
 **Campaign Control:**
-/start_process - Start a new campaign
-/continue_process - Continue a paused campaign
-/stop_process - Stop a running campaign
+/start\_process - Start a new campaign
+/continue\_process - Continue a paused campaign
+/stop\_process - Stop a running campaign
 /status - View campaign status
 
 **Email Management:**
-/add_emails - Add warmup/checkpoint emails
-/view_emails - View warmup/checkpoint emails
-/clear_emails - Clear warmup/checkpoint emails
+/add\_emails - Add warmup/checkpoint emails
+/view\_emails - View warmup/checkpoint emails
 
+**Settings:**
 /settings - Configure campaign settings
 /help - Show this help message
+
+**Tip:** Click the commands above or type them manually
         """
         await update.message.reply_text(welcome_text, parse_mode='Markdown')
 
