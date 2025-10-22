@@ -1,0 +1,21 @@
+[Unit]
+Description=Email Campaign Twitter Scraper
+After=network.target
+
+[Service]
+Type=simple
+User=campaignbot
+Group=campaignbot
+WorkingDirectory=/opt/email-campaign-bot
+Environment="PATH=/opt/email-campaign-bot/venv/bin"
+ExecStart=/opt/email-campaign-bot/venv/bin/python follower_scraper1.py
+Restart=always
+RestartSec=30
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=campaign-bot-scraper
+
+[Install]
+WantedBy=multi-user.target

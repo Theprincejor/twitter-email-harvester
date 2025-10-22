@@ -1,0 +1,46 @@
+# Campaign Configuration
+# Each campaign has its own template, SMTP settings, and warmup/checkpoint emails
+
+campaigns:
+  azuki:
+    name: "Azuki Campaign"
+    template: "templates/azuki.html"
+    subject: "An Invitation to The Garden"
+    smtp:
+      server: "smtp.hostinger.com"
+      port: 587
+      user: "support@dropsair.com"
+      password: "A~4aQ;a/XVF"
+      from_email: "Azuki Support <support@dropsair.com>"
+      reply_to: "Azuki Support <support@dropsair.com>"
+    warmup_emails: "templates/azuki_warmup.csv"
+    checkpoint_emails: "templates/azuki_checkpoint.csv"
+
+  # Example of another campaign
+  # nft_project:
+  #   name: "NFT Project Campaign"
+  #   template: "templates/nft_project.html"
+  #   subject: "Join Our Community"
+  #   smtp:
+  #     server: "smtp.example.com"
+  #     port: 587
+  #     user: "hello@example.com"
+  #     password: "your_password"
+  #     from_email: "NFT Project <hello@example.com>"
+  #     reply_to: "NFT Project <hello@example.com>"
+  #   warmup_emails: "templates/nft_project_warmup.csv"
+  #   checkpoint_emails: "templates/nft_project_checkpoint.csv"
+
+# Telegram Bot Configuration
+telegram:
+  bot_token: "8262377717:AAEbRPqVo_INpRPUjzWAZRUxNNxzoNyXQdA"
+  admin_chat_ids:
+    - 1724099455  # Your Telegram user ID
+
+# General Settings
+settings:
+  data_dir: "data"
+  delay_per_email: 5  # seconds between emails
+  delay_after_batch: 1200  # 20 minutes after each batch
+  max_retries: 3
+  rate_limit_sleep: 1800  # 30 minutes

@@ -1,0 +1,21 @@
+[Unit]
+Description=Email Campaign Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=campaignbot
+Group=campaignbot
+WorkingDirectory=/opt/email-campaign-bot
+Environment="PATH=/opt/email-campaign-bot/venv/bin"
+ExecStart=/opt/email-campaign-bot/venv/bin/python telegram_bot.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=campaign-bot-telegram
+
+[Install]
+WantedBy=multi-user.target

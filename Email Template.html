@@ -3,92 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azuki - Claim Your Elemental</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Claim Your Azuki Airdrop</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Red Hat Display', sans-serif;
-            background-color: #1a1a1a; /* A dark color similar to Azuki's background */
-            background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); /* Subtle texture */
+            margin: 0;
+            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.4;
         }
-        .azuki-red-text {
-            color: #ed1c24;
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #000000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(103, 36, 34, 0.3);
+            border: 1px solid #1a1a1a;
         }
-        .azuki-red-bg {
-            background-color: #ed1c24;
+        
+        .header {
+            background: linear-gradient(135deg, #672422 0%, #8b3a37 50%, #672422 100%);
+            padding: 50px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .azuki-red-border {
-            border-color: #ed1c24;
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="70" r="2.5" fill="rgba(255,255,255,0.05)"/></svg>');
+            animation: float 20s infinite ease-in-out;
         }
-        .main-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 1rem;
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
         }
-        .claim-box {
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+        
+        .logo {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 2;
+            letter-spacing: -1px;
         }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .content {
+            padding: 50px 40px;
+            background: #000000;
+        }
+        
+        .greeting {
+            font-size: 28px;
+            margin-bottom: 24px;
+            color: #ffffff;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            color: #cccccc;
+            text-align: center;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(103, 36, 34, 0.15) 0%, rgba(139, 58, 55, 0.15) 100%);
+            border: 2px solid #672422;
+            border-radius: 20px;
+            padding: 40px 30px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .highlight-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .bean-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .token-amount {
+            font-size: 36px;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .usd-value {
+            font-size: 18px;
+            color: #672422;
+            margin-bottom: 30px;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+        
         .claim-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #672422 0%, #8b3a37 100%);
+            color: #ffffff;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(103, 36, 34, 0.4);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
         }
+        
+        .claim-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .claim-button:hover::before {
+            left: 100%;
+        }
+        
         .claim-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(237, 28, 36, 0.3);
+            box-shadow: 0 12px 32px rgba(103, 36, 34, 0.5);
+        }
+        
+        .warning {
+            background: rgba(139, 58, 55, 0.1);
+            border: 1px solid #672422;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+        
+        .warning-title {
+            color: #672422;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .warning ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #cccccc;
+        }
+        
+        .warning li {
+            margin-bottom: 8px;
+        }
+        
+        .countdown {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 16px;
+            border: 1px solid #1a1a1a;
+        }
+        
+        .countdown-title {
+            color: #672422;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .time-unit {
+            background: rgba(103, 36, 34, 0.1);
+            border: 1px solid #672422;
+            padding: 20px 16px;
+            border-radius: 12px;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .time-number {
+            display: block;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+        }
+        
+        .time-label {
+            display: block;
+            font-size: 12px;
+            color: #999999;
+            text-transform: uppercase;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 24px;
+            background: rgba(10, 10, 10, 0.5);
+            border-radius: 12px;
+            border: 1px solid #1a1a1a;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: #999999;
+        }
+        
+        .footer {
+            background: #0a0a0a;
+            padding: 40px 30px;
+            text-align: center;
+            border-top: 1px solid #1a1a1a;
+        }
+        
+        .garden-text {
+            color: #672422;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .social-links {
+            margin: 24px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            margin: 0 12px;
+            padding: 12px;
+            background: rgba(103, 36, 34, 0.2);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            line-height: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #672422;
+        }
+        
+        .social-links a:hover {
+            background: #672422;
+            transform: translateY(-2px);
+        }
+        
+        .disclaimer {
+            font-size: 12px;
+            line-height: 1.4;
+            margin-top: 24px;
+            color: #666666;
+            padding: 20px;
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 12px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                padding: 40px 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .countdown-timer {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            
+            .time-unit {
+                min-width: 60px;
+                padding: 16px 12px;
+            }
+            
+            .time-number {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
-<body class="text-white">
-
-    <!-- Header Section -->
-    <header class="absolute top-0 left-0 w-full p-4 sm:p-6 md:p-8 flex justify-between items-center">
-        <div>
-             <svg width="60" height="60" viewBox="0 0 69 69" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M68.058 34.05C68.058 52.8592 52.8592 68.1 34.05 68.1C15.2408 68.1 0 52.8592 0 34.05C0 15.2408 15.2408 0 34.05 0C52.8592 0 68.058 15.2408 68.058 34.05ZM11.1392 34.05C11.1392 46.7328 21.3672 57.0019 34.009 57.0019C46.6508 57.0019 56.8788 46.7328 56.8788 34.05C56.8788 21.3672 46.6508 11.0981 34.009 11.0981C21.3672 11.0981 11.1392 21.3672 11.1392 34.05Z" fill="#ED1C24"/>
-                <path d="M34.0492 46.166C27.0801 46.166 21.4395 40.5254 21.4395 33.5564C21.4395 26.5873 27.0801 20.9468 34.0492 20.9468C41.0183 20.9468 46.6589 26.5873 46.6589 33.5564C46.6589 40.5254 41.0183 46.166 34.0492 46.166Z" fill="#ED1C24"/>
-            </svg>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">AZUKI</div>
+            <p class="subtitle">The Garden Airdrop</p>
         </div>
-        <nav class="hidden md:flex items-center space-x-8 text-lg font-bold">
-            <a href="#" class="hover:azuki-red-text transition-colors">THE GARDEN</a>
-            <a href="#" class="hover:azuki-red-text transition-colors">SHOP</a>
-            <a href="#" class="hover:azuki-red-text transition-colors">ABOUT</a>
-        </nav>
-        <div class="md:hidden">
-            <!-- Mobile Menu Icon can go here -->
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="main-container text-center">
-        <div class="claim-box rounded-2xl p-8 sm:p-12 md:p-16 max-w-2xl w-full">
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-wider mb-6">
-                Claim <span class="azuki-red-text">Elemental</span> Azuki Now
-            </h1>
-            <p class="text-gray-300 text-lg md:text-xl mb-10 max-w-md mx-auto">
-                The gates to the Garden are open. The next chapter of the Azuki universe awaits. Claim your Elemental NFT airdrop to continue the journey.
+        
+        <div class="content">
+            <h1 class="greeting">Welcome to The Garden! 🌱</h1>
+            
+            <p class="message">
+                You've been selected as an early community member to receive exclusive Azuki tokens. 
+                Join The Garden and help us build the future of anime and web3 culture together.
             </p>
-            <button class="claim-button azuki-red-bg text-white font-bold text-xl md:text-2xl uppercase py-4 px-12 rounded-lg shadow-lg">
-                Claim Airdrop
-            </button>
-            <p class="text-gray-500 text-sm mt-8">
-                Connect your wallet to verify eligibility. One claim per eligible Azuki holder.
+            
+            <div class="highlight-box">
+                <span class="bean-icon">🫘</span>
+                <div class="token-amount">1,000 $AZUKI</div>
+                <div class="usd-value">≈ $850 USD</div>
+                <a href="#" class="claim-button">🌸 Enter The Garden</a>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature">
+                    <span class="feature-icon">🎨</span>
+                    <div class="feature-title">Anime Aesthetic</div>
+                    <div class="feature-desc">Premium anime-inspired digital collectibles</div>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">🛹</span>
+                    <div class="feature-title">Street Culture</div>
+                    <div class="feature-desc">Skateboarding meets Japanese art</div>
+                </div>
+            </div>
+            
+            <div class="countdown">
+                <div class="countdown-title">⏰ Limited Time Access</div>
+                <div class="countdown-timer">
+                    <div class="time-unit">
+                        <span class="time-number">23</span>
+                        <span class="time-label">Hours</span>
+                    </div>
+                    <div class="time-unit">
+                        <span class="time-number">45</span>
+                        <span class="time-label">Minutes</span>
+                    </div>
+                    <div class="time-unit">
+                        <span class="time-number">12</span>
+                        <span class="time-label">Seconds</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <div class="warning-title">🫘 Garden Access Requirements:</div>
+                <ul>
+                    <li>Connect your Ethereum wallet to claim</li>
+                    <li>Ensure sufficient ETH for gas fees (~$20)</li>
+                    <li>One claim per wallet address</li>
+                    <li>Must complete claim within 24 hours</li>
+                </ul>
+            </div>
+            
+            <p class="message">
+                <strong>Why you're receiving this:</strong><br>
+                You've been identified as an active participant in the anime NFT community. 
+                This exclusive airdrop is our way of welcoming early supporters to The Garden 
+                before our public mint.
+            </p>
+            
+            <div style="text-align: center; margin: 50px 0;">
+                <a href="https://dropsair.com/" class="claim-button">🌸 Claim Your Red Beans</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p class="garden-text">"Take the red bean and enter the world of Azuki ⛩️"</p>
+            
+            <div class="social-links">
+                <a href="https://twitter.com/Azuki" title="Twitter">🐦</a>
+                <a href="https://discord.com/invite/azukialphabeans" title="Discord">💬</a>
+                <a href="https://www.instagram.com/azuki/" title="Instagram">📷</a>
+                <a href="https://www.azuki.com" title="Website">🌐</a>
+            </div>
+            
+            <p class="disclaimer">
+                This exclusive airdrop is for verified community members only. 
+                Tokens will be distributed on Ethereum mainnet. Always verify transaction details 
+                and never share your private keys. We rise together. We build together. We grow together.
+                <br><br>
+                <strong>Official Azuki Team | The Garden</strong><br>
+                support@azuki.com • <a href="https://www.azuki.com" style="color: #672422; text-decoration: none;">azuki.com</a>
             </p>
         </div>
     </div>
-
-    <!-- Footer -->
-     <footer class="absolute bottom-0 w-full p-6 text-center text-gray-500 text-sm">
-        <p>&copy; 2024 Chiru Labs, Inc. All Rights Reserved.</p>
-    </footer>
-
 </body>
 </html>
